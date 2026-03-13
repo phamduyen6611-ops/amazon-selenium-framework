@@ -19,6 +19,8 @@ public class BasePage {
     }
 
     protected void type(WebElement element, String text) {
-        wait.waitForElementVisible(element).sendKeys(text);
+        WebElement el = wait.waitForElementVisible(element);
+        el.clear();
+        el.sendKeys(text);
     }
 }

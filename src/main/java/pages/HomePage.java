@@ -3,14 +3,11 @@ package pages;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pages.Base.BasePage;
 import java.util.*;
 
 public class HomePage extends BasePage {
 
-    private static final Logger log = LoggerFactory.getLogger(HomePage.class);
 
     public HomePage(WebDriver driver) {
         super(driver);
@@ -21,12 +18,15 @@ public class HomePage extends BasePage {
     private WebElement searchboxField;
     @FindBy(id = "nav-search-submit-button")
     private WebElement searchButton;
-//    @FindBy(xpath ="//span[contains(text(),'of Vietnam')]")
-//    private WebElement existingProduct;
+
     @FindBy(xpath = "//div[@data-component-type='s-search-result']")
     private List<WebElement> searchResults;
     @FindBy(xpath = "//div[@data-component-type='s-search-result']//h2//span")
     private List<WebElement> productTitles;
+    @FindBy(xpath = "//span[normalize-space()='No results for your search query.']")
+    private WebElement noResultMessage;
+    @FindBy(xpath = "//h2/span[contains(text(),'results')]")
+    WebElement resultsText;
 
     public void searchProduct(String productNameText) {
         type(searchboxField, productNameText);
@@ -43,8 +43,20 @@ public class HomePage extends BasePage {
         return driver.getCurrentUrl().contains("amazon.com/s?k=" + keyword);
     }
 
-    public boolean isEqualsQuantityOfProductInSearchResults(){
-        return searchResults.size() > 0;
+    public int QuantityOfProductInSearchResults(){
+        return searchResults.size() ;
+    }
+    public int getResultCount(){
+
+        String text = resultsText.getText();
+        // ví dụ: "4 results for"
+
+        String number = text.split(" ")[0].replace(",", "");
+
+        return Integer.parseInt(number);
+    }
+    public boolean isNodata(){
+        return noResultMessage.isDisplayed();
     }
     public boolean isSearchResultRelevant(String keyword){
         List<String> words = normalizeKeywords(keyword);
