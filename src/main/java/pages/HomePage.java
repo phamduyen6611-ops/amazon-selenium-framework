@@ -46,6 +46,18 @@ public class HomePage extends BasePage {
     public int QuantityOfProductInSearchResults(){
         return searchResults.size() ;
     }
+    public boolean hasMultipleSearchResults(){
+        return QuantityOfProductInSearchResults() > 1;
+    }
+    public boolean hasSearchResults(){
+        return QuantityOfProductInSearchResults() > 0;
+    }
+    public String getSearchBoxPlaceholder(){
+        return wait.waitForElementVisible(searchboxField).getAttribute("placeholder");
+    }
+    public boolean isSearchBoxPlaceholderDisplayed(){
+        return "Search Amazon".equals(getSearchBoxPlaceholder());
+    }
     public int getResultCount(){
 
         String text = resultsText.getText();

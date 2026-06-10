@@ -6,6 +6,10 @@ import pages.*;
 import utils.ConfigReader;
 
 public class Search extends BaseTest {
+    private static final String MULTIPLE_PRODUCTS_KEYWORD = "Mac";
+    private static final String SEARCH_CRITERIA_PRODUCT = "iMac";
+    private static final String DESCRIPTION_KEYWORD = "iLife";
+
     @Test(priority = 1)
     public void searchValidProduct() throws InterruptedException {
         HomePage homePage = new HomePage(driver);
@@ -42,16 +46,34 @@ public class Search extends BaseTest {
         Assert.assertTrue(homePage.isSearchResultRelevant(existingProduct));
 
     }
-    @Test(priority = 5)
-    public void verifySearchMultiProduct() throws InterruptedException {
+    @Test(priority = 5, description = "TC_SF_005 - Verify searching by providing a search criteria which results in multiple products")
+    public void verifySearchCriteriaReturnsMultipleProducts() throws InterruptedException {
         HomePage homePage = new HomePage(driver);
-        String existingProduct = ConfigReader.getProperty("existingProduct");
-        homePage.searchProduct(existingProduct);
-        Assert.assertTrue(homePage.isNegativeToSearchPage(existingProduct));
-        int actualResult = homePage.getResultCount();
-        int ExpectResult = homePage.QuantityOfProductInSearchResults();
-        Assert.assertEquals(actualResult,ExpectResult);
+        homePage.searchProduct(MULTIPLE_PRODUCTS_KEYWORD);
+        Assert.assertTrue(homePage.isNegativeToSearchPage(MULTIPLE_PRODUCTS_KEYWORD));
+        Assert.assertTrue(homePage.hasMultipleSearchResults());
 
+    }
+    @Test(priority = 6, description = "TC_SF_006 - Verify search field has placeholder")
+    public void verifySearchFieldHasPlaceholder() {
+        HomePage homePage = new HomePage(driver);
+        Assert.assertTrue(homePage.isSearchBoxPlaceholderDisplayed());
+    }
+    @Test(priority = 7, description = "TC_SF_007 - Verify searching using search criteria field")
+    public void verifySearchingUsingSearchCriteriaField() throws InterruptedException {
+        HomePage homePage = new HomePage(driver);
+        homePage.searchProduct("");
+        homePage.searchProduct(SEARCH_CRITERIA_PRODUCT);
+        Assert.assertTrue(homePage.isNegativeToSearchPage(SEARCH_CRITERIA_PRODUCT));
+        Assert.assertTrue(homePage.isSearchResultRelevant(SEARCH_CRITERIA_PRODUCT));
+    }
+    @Test(priority = 8, description = "TC_SF_008 - Verify search using text from product description")
+    public void verifySearchUsingProductDescriptionText() throws InterruptedException {
+        HomePage homePage = new HomePage(driver);
+        homePage.searchProduct("");
+        homePage.searchProduct(DESCRIPTION_KEYWORD);
+        Assert.assertTrue(homePage.isNegativeToSearchPage(DESCRIPTION_KEYWORD));
+        Assert.assertTrue(homePage.hasSearchResults());
     }
 
 }
