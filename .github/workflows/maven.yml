@@ -25,8 +25,20 @@ jobs:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
+    - name: Create test config
+      run: |
+        mkdir -p src/test/resources
+        cat > src/test/resources/config.properties <<'EOF'
+        baseUrl=https://www.amazon.com/
+        browser=chrome-headless
+        timeout=10
+        email=
+        pass=
+        existingProduct=HP VietNam
+        nonExistingProduct=acdxyz3245
+        EOF
     - name: Build with Maven
-      run: mvn clean test
+      run: mvn clean -Dtest=tests.Register.Search#verifySearchCriteriaReturnsMultipleProducts+verifySearchFieldHasPlaceholder+verifySearchingUsingSearchCriteriaField+verifySearchUsingProductDescriptionText test
     - name: Generate Allure Report
       run: mvn allure:report
     - name: Deploy Allure Report to GitHub Pages

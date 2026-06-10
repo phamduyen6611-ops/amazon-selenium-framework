@@ -1,4 +1,6 @@
 target/
+.allure/
+allure-results/
 src/test/resources/config.properties
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
