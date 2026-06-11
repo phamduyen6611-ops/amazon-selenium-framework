@@ -17,10 +17,13 @@ Automation testing framework for Amazon website using Java, Selenium WebDriver, 
 - GitHub Actions CI/CD for automated testing and report deployment
 
 ## Reporting
-The project uses **Allure Report** to provide detailed execution steps, including:
+The project uses **Allure Report** (not Extent Report) to provide detailed execution steps, including:
 - Test steps with @Step annotation
 - Assertion status
 - Execution time and environment details
+
+## Project Structure
+- `src/test/java/tests/Search`: Contains all search functionality test cases.
 
 ## How to run locally
 1. Clone the repository
