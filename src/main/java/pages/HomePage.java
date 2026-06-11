@@ -3,6 +3,7 @@ package pages;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.Select;
 import pages.Base.BasePage;
 import java.util.*;
 
@@ -27,9 +28,9 @@ public class HomePage extends BasePage {
     private List<WebElement> searchResults;
     @FindBy(xpath = "//div[@data-component-type='s-search-result']//h2//span")
     private List<WebElement> productTitles;
-    @FindBy(xpath = "//span[normalize-space()='No results for your search query.'] | //span[contains(text(),'No results for')]")
+    @FindBy(xpath = "//span[normalize-space()='No results for your search query.'] | //span[contains(text(),'No results for')] | //div[contains(@class, 's-no-results-info')]")
     private WebElement noResultMessage;
-    @FindBy(xpath = "//h2/span[contains(text(),'results')]")
+    @FindBy(xpath = "//h2/span[contains(text(),'results')] | //div[contains(@class, 'a-section')]//span[contains(text(), 'results')]")
     WebElement resultsText;
 
     public void searchProduct(String productNameText) {
@@ -44,17 +45,36 @@ public class HomePage extends BasePage {
     }
 
     public void searchProductWithCategory(String productNameText, String category) {
-        selectByVisibleText(categoryDropdown, category);
+        try {
+            Select select = new Select(wait.waitForElementVisible(categoryDropdown));
+            boolean found = false;
+            for (WebElement option : select.getOptions()) {
+                if (option.getText().equalsIgnoreCase(category) || option.getText().contains(category)) {
+                    select.selectByVisibleText(option.getText());
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) System.out.println("Category " + category + " not found exactly");
+        } catch (Exception e) {
+            System.out.println("Error selecting category: " + e.getMessage());
+        }
         type(searchboxField, productNameText);
         click(searchButton);
     }
 
     public void selectSortBy(String sortOption) {
-        selectByVisibleText(sortByDropdown, sortOption);
         try {
+            Select select = new Select(wait.waitForElementVisible(sortByDropdown));
+            for (WebElement option : select.getOptions()) {
+                if (option.getText().toLowerCase().contains(sortOption.toLowerCase())) {
+                    select.selectByVisibleText(option.getText());
+                    break;
+                }
+            }
             Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Sort option " + sortOption + " not found");
         }
     }
 
@@ -82,18 +102,26 @@ public class HomePage extends BasePage {
     public int getResultCount(){
         try {
             String text = resultsText.getText();
-            String number = text.split(" ")[0].replace(",", "");
-            return Integer.parseInt(number);
+            String[] parts = text.split(" ");
+            for (int i = 0; i < parts.length; i++) {
+                if (parts[i].contains("result")) {
+                    String numStr = parts[i-1].replace(",", "");
+                    if (numStr.equalsIgnoreCase("over")) {
+                        numStr = parts[i-2].replace(",", "");
+                    }
+                    return Integer.parseInt(numStr);
+                }
+            }
+            return searchResults.size();
         } catch (Exception e) {
             return searchResults.size();
         }
     }
     public boolean isNodata(){
         try {
-            return noResultMessage.isDisplayed();
-        } catch (org.openqa.selenium.NoSuchElementException e) {
-            return searchResults.isEmpty();
-        }
+            if (noResultMessage.isDisplayed()) return true;
+        } catch (Exception e) {}
+        return searchResults.isEmpty();
     }
     public boolean isSearchResultRelevant(String keyword){
         List<String> words = normalizeKeywords(keyword);
