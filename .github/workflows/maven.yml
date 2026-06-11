@@ -1,11 +1,6 @@
 # This workflow will build a Java project with Maven, and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-maven
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
 name: Java CI with Maven
 permissions:
   contents: read
@@ -23,15 +18,15 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
 
     steps:
-    - uses: actions/checkout@v6.0.3
-    - name: Set up JDK 17
-      uses: actions/setup-java@v5.2.0
+    - uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
       with:
         java-version: '21'
         distribution: 'temurin'
         cache: maven
     - name: Configure GitHub Pages
-      uses: actions/configure-pages@v6.0.0
+      uses: actions/configure-pages@v4
     - name: Create test config
       run: |
         mkdir -p src/test/resources
@@ -45,13 +40,13 @@ jobs:
         nonExistingProduct=acdxyz3245
         EOF
     - name: Build with Maven
-      run: mvn clean -Dtest=tests.Register.Search#verifySearchCriteriaReturnsMultipleProducts+verifySearchFieldHasPlaceholder+verifySearchingUsingSearchCriteriaField+verifySearchUsingProductDescriptionText test
+      run: mvn clean -Dtest=tests.Register.Search#verifySearchWithCategory+verifySearchInSubcategories+verifyListView+verifyMultipleProductsView+verifyProductCompare+verifySortProducts+verifyResultsPerPage test
     - name: Generate Allure Report
       run: mvn allure:report
     - name: Upload Allure Report artifact
-      uses: actions/upload-pages-artifact@v5.0.0
+      uses: actions/upload-pages-artifact@v3
       with:
         path: ./target/site/allure-maven-plugin
     - name: Deploy Allure Report to GitHub Pages
       id: deployment
-      uses: actions/deploy-pages@v5.0.0
+      uses: actions/deploy-pages@v4
