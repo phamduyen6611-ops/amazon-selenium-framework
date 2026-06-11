@@ -97,6 +97,7 @@ public class HomePage extends BasePage {
         }
     }
 
+    @Step("Verify if navigated to search page for keyword: {productNameText}")
     public boolean isNegativeToSearchPage(String productNameText){
         String keyword = productNameText.replace(" ", "+");
         return driver.getCurrentUrl().contains("k=" + keyword);
@@ -105,15 +106,22 @@ public class HomePage extends BasePage {
     public int QuantityOfProductInSearchResults(){
         return searchResults.size() ;
     }
+
+    @Step("Verify if there are multiple search results")
     public boolean hasMultipleSearchResults(){
         return QuantityOfProductInSearchResults() > 1;
     }
+
+    @Step("Verify if there are any search results")
     public boolean hasSearchResults(){
         return QuantityOfProductInSearchResults() > 0;
     }
+
     public String getSearchBoxPlaceholder(){
         return wait.waitForElementVisible(searchboxField).getAttribute("placeholder");
     }
+
+    @Step("Verify if search box placeholder is displayed")
     public boolean isSearchBoxPlaceholderDisplayed(){
         String placeholder = getSearchBoxPlaceholder();
         return placeholder != null && !placeholder.isEmpty();
@@ -149,6 +157,8 @@ public class HomePage extends BasePage {
         } catch (Exception e) {}
         return searchResults.isEmpty();
     }
+
+    @Step("Verify if search result is relevant to keyword: {keyword}")
     public boolean isSearchResultRelevant(String keyword){
         List<String> words = normalizeKeywords(keyword);
         for(WebElement title : productTitles){
