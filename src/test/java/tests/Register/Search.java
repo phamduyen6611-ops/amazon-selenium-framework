@@ -13,27 +13,23 @@ public class Search extends BaseTest {
     @Test(priority = 1)
     public void searchValidProduct() throws InterruptedException {
         HomePage homePage = new HomePage(driver);
-        String existingProduct = "laptop";
-        homePage.searchProduct(existingProduct);
+        homePage.searchProduct("laptop");
         Assert.assertTrue(homePage.hasSearchResults());
     }
     @Test(priority = 2)
     public void searchInvalidProduct() throws InterruptedException {
         HomePage homePage = new HomePage(driver);
-        String nonEexistingProduct = "acdxyz3245123456";
-        homePage.searchProduct(nonEexistingProduct);
+        homePage.searchProduct("acdxyz3245123456");
         Assert.assertTrue(homePage.isNodata());
     }
     @Test(priority = 3)
     public void verifySearchWithoutEnteringAnyProduct() throws InterruptedException {
         HomePage homePage = new HomePage(driver);
         homePage.searchProduct("");
-        // On Amazon, clicking search with empty box might stay on home or show error
         Assert.assertTrue(driver.getCurrentUrl().contains("amazon.com"));
     }
     @Test(priority = 4)
     public void verifySearchAfterLogin() throws InterruptedException {
-        // Skip login if credentials are empty to avoid failure
         String email = ConfigReader.getProperty("email");
         if (email == null || email.isEmpty()) return;
         
@@ -112,7 +108,9 @@ public class Search extends BaseTest {
     @Test(priority = 15, description = "TC_SF_015 - Verify the User can select how many products can be displayed")
     public void verifyResultsPerPage() {
         HomePage homePage = new HomePage(driver);
-        homePage.searchProduct("Laptop");
-        Assert.assertTrue(homePage.getResultCount() >= 0);
+        // Added extra check and interaction
+        driver.navigate().refresh();
+        homePage.searchProduct("Monitor");
+        Assert.assertTrue(homePage.getResultCount() > 0);
     }
 }

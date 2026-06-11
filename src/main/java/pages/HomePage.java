@@ -30,10 +30,24 @@ public class HomePage extends BasePage {
     private List<WebElement> productTitles;
     @FindBy(xpath = "//span[normalize-space()='No results for your search query.'] | //span[contains(text(),'No results for')] | //div[contains(@class, 's-no-results-info')]")
     private WebElement noResultMessage;
-    @FindBy(xpath = "//h2/span[contains(text(),'results')] | //div[contains(@class, 'a-section')]//span[contains(text(), 'results')]")
-    WebElement resultsText;
+    @FindBy(xpath = "//h1//*[contains(text(), 'results')] | //h2/span[contains(text(),'results')] | //div[contains(@class, 'a-section')]//span[contains(text(), 'results')]")
+    private WebElement resultsText;
+
+    @FindBy(xpath = "//span[contains(@class, 'glow-toaster-button-dismiss')]//input")
+    private WebElement dismissLocationPopup;
+
+    public void dismissPopups() {
+        try {
+            if (dismissLocationPopup.isDisplayed()) {
+                click(dismissLocationPopup);
+            }
+        } catch (Exception e) {
+            // Popup not present
+        }
+    }
 
     public void searchProduct(String productNameText) {
+        dismissPopups();
         type(searchboxField, productNameText);
         click(searchButton);
         try {
@@ -45,6 +59,7 @@ public class HomePage extends BasePage {
     }
 
     public void searchProductWithCategory(String productNameText, String category) {
+        dismissPopups();
         try {
             Select select = new Select(wait.waitForElementVisible(categoryDropdown));
             boolean found = false;
@@ -55,7 +70,6 @@ public class HomePage extends BasePage {
                     break;
                 }
             }
-            if (!found) System.out.println("Category " + category + " not found exactly");
         } catch (Exception e) {
             System.out.println("Error selecting category: " + e.getMessage());
         }
@@ -106,10 +120,14 @@ public class HomePage extends BasePage {
             for (int i = 0; i < parts.length; i++) {
                 if (parts[i].contains("result")) {
                     String numStr = parts[i-1].replace(",", "");
-                    if (numStr.equalsIgnoreCase("over")) {
-                        numStr = parts[i-2].replace(",", "");
+                    if (numStr.equalsIgnoreCase("over") || numStr.equalsIgnoreCase("of")) {
+                        // try to find the actual number before "results"
+                        for(int j=i-1; j>=0; j--) {
+                            String s = parts[j].replace(",", "");
+                            if(s.matches("\\d+")) return Integer.parseInt(s);
+                        }
                     }
-                    return Integer.parseInt(numStr);
+                    if (numStr.matches("\\d+")) return Integer.parseInt(numStr);
                 }
             }
             return searchResults.size();
