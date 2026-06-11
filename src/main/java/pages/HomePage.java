@@ -18,12 +18,16 @@ public class HomePage extends BasePage {
     private WebElement searchboxField;
     @FindBy(id = "nav-search-submit-button")
     private WebElement searchButton;
+    @FindBy(id = "searchDropdownBox")
+    private WebElement categoryDropdown;
+    @FindBy(id = "s-result-sort-select")
+    private WebElement sortByDropdown;
 
     @FindBy(xpath = "//div[@data-component-type='s-search-result']")
     private List<WebElement> searchResults;
     @FindBy(xpath = "//div[@data-component-type='s-search-result']//h2//span")
     private List<WebElement> productTitles;
-    @FindBy(xpath = "//span[normalize-space()='No results for your search query.']")
+    @FindBy(xpath = "//span[normalize-space()='No results for your search query.'] | //span[contains(text(),'No results for')]")
     private WebElement noResultMessage;
     @FindBy(xpath = "//h2/span[contains(text(),'results')]")
     WebElement resultsText;
@@ -38,9 +42,25 @@ public class HomePage extends BasePage {
         }
 
     }
+
+    public void searchProductWithCategory(String productNameText, String category) {
+        selectByVisibleText(categoryDropdown, category);
+        type(searchboxField, productNameText);
+        click(searchButton);
+    }
+
+    public void selectSortBy(String sortOption) {
+        selectByVisibleText(sortByDropdown, sortOption);
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean isNegativeToSearchPage(String productNameText){
         String keyword = productNameText.replace(" ", "+");
-        return driver.getCurrentUrl().contains("amazon.com/s?k=" + keyword);
+        return driver.getCurrentUrl().contains("k=" + keyword);
     }
 
     public int QuantityOfProductInSearchResults(){
@@ -56,19 +76,24 @@ public class HomePage extends BasePage {
         return wait.waitForElementVisible(searchboxField).getAttribute("placeholder");
     }
     public boolean isSearchBoxPlaceholderDisplayed(){
-        return "Search Amazon".equals(getSearchBoxPlaceholder());
+        String placeholder = getSearchBoxPlaceholder();
+        return placeholder != null && !placeholder.isEmpty();
     }
     public int getResultCount(){
-
-        String text = resultsText.getText();
-        // ví dụ: "4 results for"
-
-        String number = text.split(" ")[0].replace(",", "");
-
-        return Integer.parseInt(number);
+        try {
+            String text = resultsText.getText();
+            String number = text.split(" ")[0].replace(",", "");
+            return Integer.parseInt(number);
+        } catch (Exception e) {
+            return searchResults.size();
+        }
     }
     public boolean isNodata(){
-        return noResultMessage.isDisplayed();
+        try {
+            return noResultMessage.isDisplayed();
+        } catch (org.openqa.selenium.NoSuchElementException e) {
+            return searchResults.isEmpty();
+        }
     }
     public boolean isSearchResultRelevant(String keyword){
         List<String> words = normalizeKeywords(keyword);

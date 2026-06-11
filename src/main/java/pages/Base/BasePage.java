@@ -2,6 +2,7 @@ package pages.Base;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.Select;
 import utils.Wait;
 
 public class BasePage {
@@ -22,5 +23,10 @@ public class BasePage {
         WebElement el = wait.waitForElementVisible(element);
         el.clear();
         el.sendKeys(text);
+    }
+
+    protected void selectByVisibleText(WebElement element, String text) {
+        Select select = new Select(wait.waitForElementVisible(element));
+        select.selectByVisibleText(text);
     }
 }
