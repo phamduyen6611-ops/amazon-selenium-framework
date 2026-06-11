@@ -1,5 +1,6 @@
 package pages.Base;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -16,6 +17,7 @@ public class BasePage {
         wait = new Wait(driver);
     }
 
+    @Step("Click on element: {element}")
     protected void click(WebElement element) {
         try {
             wait.waitForElementClickable(element).click();
@@ -25,6 +27,7 @@ public class BasePage {
         }
     }
 
+    @Step("Type text '{text}' into element")
     protected void type(WebElement element, String text) {
         WebElement el = wait.waitForElementVisible(element);
         try {
@@ -37,6 +40,7 @@ public class BasePage {
         }
     }
 
+    @Step("Select option '{text}' from dropdown")
     protected void selectByVisibleText(WebElement element, String text) {
         Select select = new Select(wait.waitForElementVisible(element));
         select.selectByVisibleText(text);

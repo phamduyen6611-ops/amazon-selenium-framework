@@ -1,5 +1,6 @@
 package pages;
 
+import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
@@ -36,6 +37,7 @@ public class HomePage extends BasePage {
     @FindBy(xpath = "//span[contains(@class, 'glow-toaster-button-dismiss')]//input")
     private WebElement dismissLocationPopup;
 
+    @Step("Dismiss any popups if present")
     public void dismissPopups() {
         try {
             if (dismissLocationPopup.isDisplayed()) {
@@ -46,6 +48,7 @@ public class HomePage extends BasePage {
         }
     }
 
+    @Step("Search for product: {productNameText}")
     public void searchProduct(String productNameText) {
         dismissPopups();
         type(searchboxField, productNameText);
@@ -58,6 +61,7 @@ public class HomePage extends BasePage {
 
     }
 
+    @Step("Search for product '{productNameText}' in category '{category}'")
     public void searchProductWithCategory(String productNameText, String category) {
         dismissPopups();
         try {
@@ -77,6 +81,7 @@ public class HomePage extends BasePage {
         click(searchButton);
     }
 
+    @Step("Select sort option: {sortOption}")
     public void selectSortBy(String sortOption) {
         try {
             Select select = new Select(wait.waitForElementVisible(sortByDropdown));
@@ -113,6 +118,8 @@ public class HomePage extends BasePage {
         String placeholder = getSearchBoxPlaceholder();
         return placeholder != null && !placeholder.isEmpty();
     }
+    
+    @Step("Get result count from the page")
     public int getResultCount(){
         try {
             String text = resultsText.getText();
@@ -121,7 +128,6 @@ public class HomePage extends BasePage {
                 if (parts[i].contains("result")) {
                     String numStr = parts[i-1].replace(",", "");
                     if (numStr.equalsIgnoreCase("over") || numStr.equalsIgnoreCase("of")) {
-                        // try to find the actual number before "results"
                         for(int j=i-1; j>=0; j--) {
                             String s = parts[j].replace(",", "");
                             if(s.matches("\\d+")) return Integer.parseInt(s);
@@ -135,6 +141,8 @@ public class HomePage extends BasePage {
             return searchResults.size();
         }
     }
+    
+    @Step("Check if no results message is displayed")
     public boolean isNodata(){
         try {
             if (noResultMessage.isDisplayed()) return true;
