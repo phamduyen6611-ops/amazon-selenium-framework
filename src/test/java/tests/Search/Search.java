@@ -1,4 +1,4 @@
-package tests.Register;
+package tests.Search;
 import base.BaseTest;
 import org.testng.annotations.Test;
 import pages.*;
