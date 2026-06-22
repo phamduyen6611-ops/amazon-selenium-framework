@@ -35,8 +35,8 @@ jobs:
         existingProduct=HP VietNam
         nonExistingProduct=acdxyz3245
         EOT
-    - name: Build with Maven
-      run: mvn clean -Dtest=tests.Search.Search#verifySearchWithCategory+verifySearchInSubcategories+verifyListView+verifyMultipleProductsView+verifyProductCompare+verifySortProducts+verifyResultsPerPage test
+    - name: Run Search tests with Maven
+      run: mvn clean -Dtest=tests.Search.Search test
     - name: Generate Allure Report
       run: mvn allure:report
     - name: Upload Allure Report artifact

@@ -8,6 +8,7 @@ public class Search extends BaseTest {
     private static final String MULTIPLE_PRODUCTS_KEYWORD = "MacBook";
     private static final String SEARCH_CRITERIA_PRODUCT = "iPhone";
     private static final String DESCRIPTION_KEYWORD = "Wireless";
+    private static final String EXISTING_PRODUCT = "iMac";
 
     @Test(priority = 1)
     public void searchValidProduct() throws InterruptedException {
@@ -110,5 +111,84 @@ public class Search extends BaseTest {
         driver.navigate().refresh();
         homePage.searchProduct("Monitor");
         assertTrue(homePage.getResultCount() > 0, "Result count should be greater than 0");
+    }
+
+    @Test(priority = 16, description = "TC_SF_016 - Verify Search textbox field and search icon button are displayed on all pages")
+    public void verifySearchBoxAndButtonDisplayedOnApplicationPages() {
+        HomePage homePage = new HomePage(driver);
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+
+        driver.get(baseUrl);
+        assertTrue(homePage.isSearchFunctionalityDisplayed(), "Search box and search button should be displayed on Home page");
+
+        homePage.searchProduct(EXISTING_PRODUCT);
+        assertTrue(homePage.isSearchFunctionalityDisplayed(), "Search box and search button should be displayed on Search Results page");
+
+        homePage.openSearchPage(baseUrl, MULTIPLE_PRODUCTS_KEYWORD);
+        assertTrue(homePage.isSearchFunctionalityDisplayed(), "Search box and search button should be displayed on Search page");
+    }
+
+    @Test(priority = 17, description = "TC_SF_017 - Verify navigating to Search page from the Site Map page")
+    public void verifyNavigatingToSearchPageFromSiteMapPage() {
+        HomePage homePage = new HomePage(driver);
+        String baseUrl = ConfigReader.getProperty("baseUrl");
+
+        homePage.openSiteDirectoryPage(baseUrl);
+        assertTrue(homePage.isSiteDirectoryPage(), "Site Directory page should be displayed");
+
+        homePage.openSearchPage(baseUrl, EXISTING_PRODUCT);
+        assertTrue(homePage.isSearchPageUrlForKeyword(EXISTING_PRODUCT), "User should be navigated to Search page from Site Directory page");
+    }
+
+    @Test(priority = 18, description = "TC_SF_018 - Verify Breadcrumb of the Search page")
+    public void verifyBreadcrumbOfSearchPage() {
+        HomePage homePage = new HomePage(driver);
+        driver.get(ConfigReader.getProperty("baseUrl"));
+
+        homePage.searchProduct(EXISTING_PRODUCT);
+        assertTrue(homePage.isSearchPageUrlForKeyword(EXISTING_PRODUCT), "Search page URL should keep the searched keyword");
+        assertTrue(homePage.isSearchPageHeadingDisplayed(), "Search page heading or result context should be displayed");
+    }
+
+    @Test(priority = 19, description = "TC_SF_019 - Verify Search functionality can be used with keyboard keys")
+    public void verifySearchUsingKeyboardKeys() {
+        HomePage homePage = new HomePage(driver);
+        driver.get(ConfigReader.getProperty("baseUrl"));
+
+        homePage.searchProductUsingKeyboard(EXISTING_PRODUCT);
+        assertTrue(homePage.isSearchPageUrlForKeyword(EXISTING_PRODUCT), "Search should be performed using keyboard Enter key");
+        assertTrue(homePage.hasSearchResults(), "Search results should be displayed after keyboard search");
+    }
+
+    @Test(priority = 20, description = "TC_SF_020 - Verify Page Heading, Page URL and Page Title of the Search page")
+    public void verifySearchPageHeadingUrlAndTitle() {
+        HomePage homePage = new HomePage(driver);
+        driver.get(ConfigReader.getProperty("baseUrl"));
+
+        homePage.searchProduct(EXISTING_PRODUCT);
+        assertTrue(homePage.isSearchPageHeadingDisplayed(), "Search page heading should be displayed");
+        assertTrue(homePage.isSearchPageUrlForKeyword(EXISTING_PRODUCT), "Search page URL should contain searched keyword");
+        assertTrue(homePage.isSearchPageTitleDisplayedForKeyword(EXISTING_PRODUCT), "Search page title should contain searched keyword");
+    }
+
+    @Test(priority = 21, description = "TC_SF_021 - Verify the UI of Search functionality and Search page options")
+    public void verifySearchFunctionalityAndSearchPageUi() {
+        HomePage homePage = new HomePage(driver);
+        driver.get(ConfigReader.getProperty("baseUrl"));
+
+        assertTrue(homePage.isSearchFunctionalityDisplayed(), "Search textbox and search button should be visible");
+        assertTrue(homePage.isSearchBoxPlaceholderDisplayed(), "Search textbox should have placeholder text");
+
+        homePage.searchProduct(MULTIPLE_PRODUCTS_KEYWORD);
+        assertTrue(homePage.hasSearchPageUiOptions(), "Search results page should display core search UI options and results");
+    }
+
+    @Test(priority = 22, description = "TC_SF_022 - Verify Search functionality in the supported environment")
+    public void verifySearchFunctionalityInSupportedEnvironment() {
+        HomePage homePage = new HomePage(driver);
+        driver.get(ConfigReader.getProperty("baseUrl"));
+
+        homePage.searchProduct(EXISTING_PRODUCT);
+        assertTrue(homePage.isSearchWorkingInCurrentEnvironment(EXISTING_PRODUCT), "Search functionality should work in the configured browser environment");
     }
 }

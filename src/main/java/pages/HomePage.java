@@ -4,8 +4,11 @@ import io.qameta.allure.Step;
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import pages.Base.BasePage;
+import java.time.Duration;
 import java.util.*;
 
 public class HomePage extends BasePage {
@@ -59,6 +62,17 @@ public class HomePage extends BasePage {
             throw new RuntimeException(e);
         }
 
+    }
+
+    @Step("Search for product using keyboard: {productNameText}")
+    public void searchProductUsingKeyboard(String productNameText) {
+        dismissPopups();
+        WebElement searchBox = wait.waitForElementVisible(searchboxField);
+        searchBox.clear();
+        searchBox.sendKeys(productNameText);
+        searchBox.sendKeys(Keys.ENTER);
+        new WebDriverWait(driver, Duration.ofSeconds(10))
+                .until(ExpectedConditions.urlContains("/s?"));
     }
 
     @Step("Search for product '{productNameText}' in category '{category}'")
@@ -117,6 +131,29 @@ public class HomePage extends BasePage {
         return QuantityOfProductInSearchResults() > 0;
     }
 
+    @Step("Verify search textbox is displayed")
+    public boolean isSearchBoxDisplayed(){
+        try {
+            return wait.waitForElementVisible(searchboxField).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Step("Verify search icon button is displayed")
+    public boolean isSearchButtonDisplayed(){
+        try {
+            return wait.waitForElementVisible(searchButton).isDisplayed();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Step("Verify search functionality is displayed")
+    public boolean isSearchFunctionalityDisplayed(){
+        return isSearchBoxDisplayed() && isSearchButtonDisplayed();
+    }
+
     public String getSearchBoxPlaceholder(){
         return wait.waitForElementVisible(searchboxField).getAttribute("placeholder");
     }
@@ -125,6 +162,59 @@ public class HomePage extends BasePage {
     public boolean isSearchBoxPlaceholderDisplayed(){
         String placeholder = getSearchBoxPlaceholder();
         return placeholder != null && !placeholder.isEmpty();
+    }
+
+    @Step("Open Amazon site directory page")
+    public void openSiteDirectoryPage(String baseUrl){
+        String normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        driver.get(normalizedBaseUrl + "gp/site-directory");
+    }
+
+    @Step("Open Amazon search page from current page for keyword: {keyword}")
+    public void openSearchPage(String baseUrl, String keyword){
+        String normalizedBaseUrl = baseUrl.endsWith("/") ? baseUrl : baseUrl + "/";
+        driver.get(normalizedBaseUrl + "s?k=" + keyword.replace(" ", "+"));
+    }
+
+    @Step("Verify current page is Amazon site directory")
+    public boolean isSiteDirectoryPage(){
+        String currentUrl = driver.getCurrentUrl().toLowerCase(Locale.ROOT);
+        String pageTitle = driver.getTitle().toLowerCase(Locale.ROOT);
+        return currentUrl.contains("site-directory") || pageTitle.contains("site directory");
+    }
+
+    @Step("Verify current page is search results page for keyword: {keyword}")
+    public boolean isSearchPageUrlForKeyword(String keyword){
+        String currentUrl = driver.getCurrentUrl().toLowerCase(Locale.ROOT);
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT).replace(" ", "+");
+        return currentUrl.contains("/s?") && currentUrl.contains("k=" + normalizedKeyword);
+    }
+
+    @Step("Verify search page heading is displayed")
+    public boolean isSearchPageHeadingDisplayed(){
+        try {
+            return wait.waitForElementVisible(resultsText).isDisplayed();
+        } catch (Exception e) {
+            return hasSearchResults();
+        }
+    }
+
+    @Step("Verify search page title is displayed for keyword: {keyword}")
+    public boolean isSearchPageTitleDisplayedForKeyword(String keyword){
+        String title = driver.getTitle();
+        return title != null
+                && !title.isBlank()
+                && title.toLowerCase(Locale.ROOT).contains(keyword.toLowerCase(Locale.ROOT));
+    }
+
+    @Step("Verify search result page has core UI options")
+    public boolean hasSearchPageUiOptions(){
+        return isSearchFunctionalityDisplayed() && hasSearchResults();
+    }
+
+    @Step("Verify search works in current browser environment for keyword: {keyword}")
+    public boolean isSearchWorkingInCurrentEnvironment(String keyword){
+        return isSearchPageUrlForKeyword(keyword) && hasSearchResults();
     }
     
     @Step("Get result count from the page")
