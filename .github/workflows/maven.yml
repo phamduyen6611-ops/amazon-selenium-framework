@@ -38,11 +38,14 @@ jobs:
     - name: Run Search tests with Maven
       run: mvn clean -Dtest=tests.Search.Search test
     - name: Generate Allure Report
+      if: always()
       run: mvn allure:report
     - name: Upload Allure Report artifact
+      if: always()
       uses: actions/upload-pages-artifact@v3
       with:
         path: ./target/site/allure-maven-plugin
     - name: Deploy Allure Report to GitHub Pages
+      if: always()
       id: deployment
       uses: actions/deploy-pages@v4
